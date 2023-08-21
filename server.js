@@ -137,3 +137,54 @@ const AddDepartment = () => {
         });
       });
   };
+
+  // Function to delete a department
+const DeleteDepartment = () => {
+    const deptSql = 'SELECT * FROM department';
+  
+    // Retrieve department data from the database
+    connection.query(deptSql)
+      .then(([rows, fields]) => {
+        const deptChoices = rows.map(({ id, name }) => ({ name, value: id }));
+  
+        inquirer
+          .prompt([
+            {
+              type: 'list',
+              name: 'dept',
+              message: 'What department do you want to delete?',
+              choices: deptChoices
+            }
+          ])
+          .then((deptChoice) => {
+            const deptId = deptChoice.dept;
+            const deleteSql = 'DELETE FROM department WHERE id = ?';
+  
+            // Delete the selected department from the database
+            return connection.query(deleteSql, deptId);
+          })
+          .then(() => {
+            console.log('Successfully deleted department!');
+          })
+          .catch((err) => {
+            console.error('Error deleting department:', err);
+          });
+      })
+      
+  };
+  // function to show all roles
+  ShowAllRoles = () => {
+    console.log('Showing all roles...');
+  
+    const sql = `SELECT role.id, role.title, department.name AS department
+                 FROM role
+                 INNER JOIN department ON role.department_id = department.id`;
+    
+    connection.promise().query(sql, (err, rows) => {
+      if (err) throw err; 
+      console.table(rows); 
+      promptUser();
+    })
+  };
+
+  
